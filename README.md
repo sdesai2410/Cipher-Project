@@ -1,164 +1,118 @@
-# Cipher-Project
-This project implements both Caesar Cipher (encoding/decoding) and Substitution Cipher (encoding/decoding) tools in C++.
-The goal is to build correct, efficient, and test-compliant cryptographic functions following the project guide.
+# Cipher Project — Caesar & Substitution Ciphers  
+### C++ Implementation | Fully Test-Compatible
 
-Project Overview
+This project implements **Caesar** and **Substitution** cipher tools in C++, including both **encoding** and **decoding** functionality.  
+The README includes explanations, troubleshooting, and best practices based on the official FAQ.
 
-This repository contains implementations for:
+---
 
-1. Caesar Cipher
+##  Features
 
-    Encode text using Caesar shift
+### 🔸 Caesar Cipher
+- Encode using rotation shift
+- Decode by generating all 26 rotations
+- Safe character handling (uppercase conversion, punctuation preserved)
 
-    Decode text by testing all rotations
+### 🔸 Substitution Cipher
+- Encode using a 26-letter key
+- Decode using hill-climbing + English scoring
+- Automatic full-file decryption using a *single* key
 
-    Full command parsing using getline
+---
 
-    Proper character handling with toupper + casting
+##  Getting Started
 
-2. Substitution Cipher
+### 1️⃣ Build & Run  
+You **must use `make`**.  
+Do **NOT** use clang commands manually or your IDE run button.
 
-    Encode by applying a 26-letter key
+Example:
+```
+make
+make run
+make test
+```
 
-    Decode using a hill-climbing algorithm with English scoring
+---
 
-    Resetting & swapping logic to avoid incorrect convergence
+# Common Problems & Fixes
 
-    Supports decrypting entire files encoded with one key
+## Caesar Cipher Issues
 
-Build & Run Instructions:
-Use make — Do NOT run code manually
+### Characters turning into numbers
+`toupper()` returns an int.  
+Use:
+```
+(char)toupper(c)
+```
 
-The project requires using Make commands instead of running via IDE buttons or typing clang++ manually.
-Tests and runners depend on the provided Makefile.
+---
 
-Common Issues & Fixes:
-Below is a consolidated list of frequently asked questions from the FAQ:
+### Decoder freezes  
+Caused by mixing getline and >>.  
+Use ONLY getline.
 
- Caesar Cipher — Known Issues
- “utils.h not found”
+---
 
-Always run the project using make, not the Run button or manual compile.
-This resolves include-path issues. 
-Strings turn into numbers
+### Repeated Caesar decryptions  
+rot() modifies the vector in-place.  
+Use a fresh copy for each rotation.
 
-Because toupper, tolower, etc. return int, inserting them directly into a stream prints ASCII numbers.
+---
 
-Fix:
+## Substitution Cipher Issues
 
-ss << (char)toupper(c);
+### applySubstitutionCipher fails tests  
+Convert lowercase → uppercase.  
+Preserve punctuation.
 
-Program hangs / infinite loop
+---
 
-Caused by mixing >> and getline.
-Use only getline for all console input.
+### Hill-climbing stops early  
+Stop only after 1000 *non-improving* swaps IN A ROW.
 
-Decoder gives repeated or unordered outputs
+---
 
-The rot function modifies the vector passed by reference.
+### Poor decryption  
+English scores are negative; do NOT use bestScore = 0.
 
-Calling rot(vec,1) then rot(vec,2) actually rotates by 3.
-Use a fresh copy for each test.
+---
 
-Output looks correct, but tests fail
+### Local maximum issue  
+Perform 25 hill-climbs.  
+Undo swaps that worsen score.
 
-Common mistakes:
+---
 
-Not using putTogetherWithSpaces
+## File Decryption Issues
 
-Not printing each decrypted line separately
-
-Extra console output beyond expected values
-
-Substitution Cipher — Known Issues
-applySubstitutionCipher fails tests but works manually
-
-Tests expect:
-
-Conversion of lowercase → uppercase
-
-Non-alphabet characters preserved
-
-Correct handling of "Mr. Jock, TV quiz PhD, bags few lynx."
-
-Hill-climbing stops too early
-
-The rule “1000 trials in a row without improvement” is often misread.
-It does not mean “1000 total trials.”
-
-Decryption is too fast and inaccurate
-
-Initial “best score” must NOT be zero, because all Englishness scores are negative.
-
-Gets stuck at a local max
-
-You must:
-
-Run hill-climbing 25 separate times
-
-Reset swaps correctly
-
-Compare each trial to the current iteration’s best score, NOT previous runs
-
-Code is extremely slow or hangs
-
-Likely calling:
-
-applySubstitutionCipher
-
-getScore
-
-clean
-too often in loops.
-
-Minimize repeated computation.
-
-File Decryption Issues
-Output file looks right but tests fail
-
-Most common causes:
-
-Missing newline at end of a line
-
-Extra newline at end of file
-
-Using while(!infile.eof()) — never do this
+### Bad file output  
+Do NOT use:
+```
+while(!eof())
+```
 
 Use:
+```
+while(getline(infile, line))
+```
 
-while (getline(infile, line)) {
-    ...
-}
+---
 
-File decode wrong even though console version works
-
-You must decrypt the entire file using a single key, not per line.
-Each line decrypted with its own key produces gibberish.
-
-C++ Function Declarations
-
-If you get:
-
-use of undeclared identifier
-
-
-You must declare helper functions at the top of ciphers.cpp:
-
+## C++ Function Declarations
+If you get “undeclared identifier,” add declarations at the top:
+```
 void rot(vector<string>&, int);
+```
 
+---
 
-Real C++ projects use header files, but this assignment requires everything in a single .cpp.
+## Tips to Pass Every Test
+- No extra prints  
+- Use helper functions  
+- Reset states properly  
+- Decrypt full file using one key  
+- Use getline for input
 
-Tips for Passing All Tests
+---
 
-Follow input/output formats exactly
-
-Avoid extra prints
-
-Use helper functions you wrote
-
-Reset state fully between decoder iterations
-
-Verify character handling carefully
-
-Recreate plaintext.txt using your passing decryption
